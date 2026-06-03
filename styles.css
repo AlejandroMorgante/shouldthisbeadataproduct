@@ -61,12 +61,12 @@ body::before {
 }
 
 h1 {
-  font-size: clamp(4rem, 13vw, 14rem);
+  font-size: clamp(3.4rem, 12vw, 14rem);
   font-weight: 900;
   letter-spacing: 0;
   line-height: 0.85;
   margin: 0;
-  max-inline-size: min(11ch, 94vw);
+  max-inline-size: min(12ch, 94vw);
   overflow-wrap: anywhere;
   position: relative;
   text-align: center;
