@@ -34,20 +34,37 @@ const shell = document.querySelector(".answer-shell");
 let lastIndex = -1;
 
 function fitAnswer() {
-  const shellRect = shell.getBoundingClientRect();
-  const availableWidth = shellRect.width - 32;
-  const availableHeight = shellRect.height - 32;
-  let size = 224;
+  const shellStyle = getComputedStyle(shell);
+  const horizontalPadding =
+    parseFloat(shellStyle.paddingLeft) + parseFloat(shellStyle.paddingRight);
+  const verticalPadding =
+    parseFloat(shellStyle.paddingTop) + parseFloat(shellStyle.paddingBottom);
+  const availableWidth = Math.max(0, shell.clientWidth - horizontalPadding);
+  const availableHeight = Math.max(0, shell.clientHeight - verticalPadding);
 
-  answer.style.fontSize = `${size}px`;
+  answer.style.inlineSize = `${availableWidth}px`;
 
-  while (
-    size > 34 &&
-    (answer.scrollWidth > availableWidth || answer.scrollHeight > availableHeight)
-  ) {
-    size -= 4;
-    answer.style.fontSize = `${size}px`;
+  let smallest = 34;
+  let largest = 224;
+  let bestFit = smallest;
+
+  while (smallest <= largest) {
+    const candidate = Math.floor((smallest + largest) / 2);
+    answer.style.fontSize = `${candidate}px`;
+
+    const fits =
+      answer.scrollWidth <= availableWidth + 1 &&
+      answer.scrollHeight <= availableHeight + 1;
+
+    if (fits) {
+      bestFit = candidate;
+      smallest = candidate + 1;
+    } else {
+      largest = candidate - 1;
+    }
   }
+
+  answer.style.fontSize = `${bestFit}px`;
 }
 
 function nextAnswer() {
@@ -75,5 +92,11 @@ window.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("resize", fitAnswer);
+window.visualViewport?.addEventListener("resize", fitAnswer);
+
+if ("ResizeObserver" in window) {
+  const resizeObserver = new ResizeObserver(fitAnswer);
+  resizeObserver.observe(shell);
+}
 
 nextAnswer();
